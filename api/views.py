@@ -34,17 +34,6 @@ def api_root(request, format=None):
 	})
 
 
-@api_view(('POST',))
-def poster(request):
-	playlist_type = request.POST.get('playlist_type')
-	playlist_name = request.POST.get('playlist_name')
-	csv_filename = request.POST.get('csv_filename')
-	print playlist_type
-	print playlist_name
-	print csv_filename
-	return HttpResponse(playlist_type)
-
-
 class SoundList(generics.ListCreateAPIView):
 	"""
 	List all sounds, create a sound
@@ -135,10 +124,6 @@ class PlaylistList(generics.ListCreateAPIView):
 		playlist_name = request.POST.get('playlist_name')
 		csv_filename = request.POST.get('csv_filename')
 
-		print playlist_type
-		print playlist_name
-		print csv_filename
-
 		# Create a new Playlist object
 		# resp = self.create(request, *args, **kwargs)
 		# print resp.data['id']		
@@ -226,9 +211,6 @@ class PlaylistList(generics.ListCreateAPIView):
 						# If no, then add to db, id_list
 						s = Sounds()
 						s.xc_id = curr_id
-						s.xenocanto_url = ''
-						s.waveform_path = '/' + str(s.xc_id) + '.dat'
-						s.spectrogram_path = '/' + str(s.xc_id) + '.spec'
 
 						# Figure out if there's a species object that matches the species name
 						try:
@@ -295,12 +277,12 @@ class PlaylistList(generics.ListCreateAPIView):
 		block_size = 8192
 		while True:
 			buf = conn.read(block_size)
-			
+
 			if not buf:
 				break
 
 			f.write(buf)
-			
+
 		f.close()
 
 		return file_name

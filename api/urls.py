@@ -5,7 +5,6 @@ from api import views
 
 urlpatterns = patterns('api.views',
 	url(r'^$', 'api_root'),
-	url(r'^poster/$', 'poster'),
 	url(r'^sounds/$', views.SoundList.as_view(),
 		name='sound-list'),
 	url(r'^sounds/(?P<pk>[0-9]+)/$', views.SoundDetail.as_view(),
