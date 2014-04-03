@@ -1,6 +1,7 @@
 from essentia import Pool, array
 from essentia.standard import *
 # from pylab import *
+import subprocess
 
 
 class FeaturesObject():
@@ -42,6 +43,15 @@ class FeaturesObject():
 		print "Num onsets: " + str(len(onsets_rms))
 
 		return onsets_rms
+
+	def get_waveform(self, in_filename):
+
+		out_filename = in_filename[0:len(in_filename)-3] + 'dat'
+		subprocess.call('audiowaveform -i ' + in_filename + ' -o ' + out_filename + ' -z 256 -b 8', shell=True)
+
+		return out_filename
+
+		# subprocess.call('audiowaveform -i /opt/ntb_v1/ntb_v1/media/audio/160043.mp3 -o /opt/ntb_v1/ntb_v1/media/audio/160043.dat -z 256 -b 8', shell=True)
 
 		# 3) Save the onset locations to a .json file
 		# pool_onsets = Pool()

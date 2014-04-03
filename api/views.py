@@ -241,16 +241,21 @@ class PlaylistList(generics.ListCreateAPIView):
 						# Add the species to the current sound
 						s.species = sp
 
+						# Download the audio file (temp)
+						temp_filename = self.download_file(curr_url, curr_id)
+
+						# Instantiate the FeaturesObject
+						feat_obj = feat.FeaturesObject()
+
+						# Calculate the waveform data and save the filepath to Sounds object
+						waveform_path = feat_obj.get_waveform(temp_filename)
+						s.waveform_path = waveform_path
+
 						# Save the sound
 						s.save()
 						snd_pks.append(s.pk)
 
-						# Download the audio file (temp)
-						temp_filename = self.download_file(curr_url, curr_id)
-
 						# Calculate onsets/offsets
-						feat_obj = feat.FeaturesObject()
-						# json_filename = feat_obj.get_onsets(temp_filename)
 						onsets = feat_obj.get_onsets(temp_filename)
 
 						# Create a GroundTruth object for each onset
