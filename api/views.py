@@ -19,6 +19,7 @@ from urllib2 import urlopen
 
 #audio_dir = '/Users/aemarse/Documents/devel/NameThatBird/audio/'
 audio_dir = '/opt/ntb_v1/ntb_v1/media/audio/'
+SP_PER_LESSON = 4
 
 
 @api_view(('GET',))
@@ -151,115 +152,125 @@ class PlaylistList(generics.ListCreateAPIView):
 		# lesson.filepath = csv_filename
 		# sp_list = []
 		# sp_list = lesson.csv_to_list()
-		sp_list = ['American+Bittern', 'Mallard', 'Snowy+Egret', 'Great+Egret']
-		print sp_list
+		sp_list = ['American+Bittern', 'Mallard', 'Snowy+Egret', 'Great+Egret', 'Canada+Goose', 'Gadwall', 'Northern+Shoveler', 'Green+Heron']
 
 		# Get list of id's from species on the list
 		pk_list = []
 		pk_list = self.make_lessons_from_list(sp_list)
 
 		# Loop through newly created sounds and calculate waveforms/onsets
-		s = Sounds.objects.filter(pk__in=pk_list)
+		# s = Sounds.objects.filter(pk__in=pk_list)
 
 		return Response()
 
-	def make_lessons_from_list(self, sp_list):
+	def make_lessons_from_list(self, species_list):
 
-		# Instantiate a Lessons object
-		l = Lessons()
-		l.playlist = self.curr_playlist
-		l.save()
+		# Split sp_list into smaller lists (each representing a lesson)
+		lesson_lists = self.split_list(species_list)
 
-		# Initialize a list for saving the pks of sounds
-		snd_pks = []
+		# Loop through the lesson lists
+		for sp_list in lesson_lists:
 
-		curr_name_idx = 0
+			# Initialize a list for saving the pks of sounds
+			snd_pks = []
 
-		# Loop through the returned species
-		id_list = []
-		for name in sp_list:
-			# Instantiate a XenoCantoObject
-			xc_obj = xc.XenoCantoObject()
+			# Instantiate a Lessons object
+			l = Lessons()
+			l.playlist = self.curr_playlist
+			l.save()
 
-			# Query xeno-canto
-			xc_obj.setName(name)
-			xc_obj.makeUrl()
-			json_obj = xc_obj.get()
-			xc_obj.decode(json_obj)
-			recs = xc_obj.recs
+			# Loop through the returned species
+			id_list = []
+			for name in sp_list:
+				# Instantiate a XenoCantoObject
+				xc_obj = xc.XenoCantoObject()
 
-			# If there are enough recordings
-			if len(recs) >= 5:
+				# Query xeno-canto
+				xc_obj.setName(name)
+				xc_obj.makeUrl()
+				json_obj = xc_obj.get()
+				xc_obj.decode(json_obj)
+				recs = xc_obj.recs
 
-				# Loop through the recordings	
-				num_recs = 0
-				for rec in recs:
+				# If there are enough recordings
+				if len(recs) >= 5:
 
-					# Break if we exceed the desired number of recordings
-					if num_recs > 4:
-						break
+					# Loop through the recordings	
+					num_recs = 0
+					for rec in recs:
 
-					# Get the id of the current sound
-					curr_id = rec['id']
-					curr_sp_name = rec['en']
-					curr_url = rec['file']
+						# Break if we exceed the desired number of recordings
+						if num_recs > 4:
+							break
 
-					# Check if it is already in the db
-					try:
-						s = Sounds.objects.get(xc_id=curr_id)
-					except ObjectDoesNotExist:
-						# If no, then add to db, id_list
-						s = Sounds()
-						s.xc_id = curr_id
+						# Get the id of the current sound
+						curr_id = rec['id']
+						curr_sp_name = rec['en']
+						curr_url = rec['file']
 
-						# Figure out if there's a species object that matches the species name
+						# Check if it is already in the db
 						try:
-							sp = Species.objects.get(eng_name=curr_sp_name)
-							# If there's not one, create it
+							s = Sounds.objects.get(xc_id=curr_id)
 						except ObjectDoesNotExist:
-							sp = Species(eng_name=curr_sp_name)
-							sp.save()
+							# If no, then add to db, id_list
+							s = Sounds()
+							s.xc_id = curr_id
 
-						# Add the species to the current sound
-						s.species = sp
+							# Figure out if there's a species object that matches the species name
+							try:
+								sp = Species.objects.get(eng_name=curr_sp_name)
+								# If there's not one, create it
+							except ObjectDoesNotExist:
+								sp = Species(eng_name=curr_sp_name)
+								sp.save()
 
-						# Download the audio file (temp)
-						temp_filename = self.download_file(curr_url, curr_id)
+							# Add the species to the current sound
+							s.species = sp
 
-						# Instantiate the FeaturesObject
-						feat_obj = feat.FeaturesObject()
+							# Download the audio file (temp)
+							temp_filename = self.download_file(curr_url, curr_id)
 
-						# Calculate the waveform data and save the filepath to Sounds object
-						waveform_path = feat_obj.get_waveform(temp_filename)
-						s.waveform_path = waveform_path
+							# Instantiate the FeaturesObject
+							feat_obj = feat.FeaturesObject()
 
-						# Save the sound
-						s.save()
-						snd_pks.append(s.pk)
+							# Calculate the waveform data and save the filepath to Sounds object
+							waveform_path = feat_obj.get_waveform(temp_filename)
+							# s.waveform_path = waveform_path
 
-						# Calculate onsets/offsets
-						onsets = feat_obj.get_onsets(temp_filename)
+							# Save the sound
+							s.save()
+							snd_pks.append(s.pk)
 
-						# Create a GroundTruth object for each onset
-						for onset in onsets:
-							gtruth = GroundTruth(sound=s,
-								onset_loc=onset,
-								species=s.species)
-							gtruth.save()
+							# Calculate onsets/offsets
+							onsets = feat_obj.get_onsets(temp_filename)
 
-						# Remove the temp file
-						os.remove(temp_filename)
+							# Create a GroundTruth object for each onset
+							for onset in onsets:
+								gtruth = GroundTruth(sound=s,
+									onset_loc=onset,
+									species=s.species)
+								gtruth.save()
 
-					# Add the id to the list
-					id_list.append(curr_id)
+							# Remove the temp file
+							os.remove(temp_filename)
 
-					# Increment num_recs
-					num_recs += 1
+						# Add the id to the list
+						id_list.append(curr_id)
 
-		l.sounds = snd_pks
-		l.save()
+						# Increment num_recs
+						num_recs += 1
+
+			l.sounds = snd_pks
+			l.save()
 
 		return snd_pks
+
+
+	# Helper function that splits lists into smaller list of "n" elements each
+	def split_list(self, sp_list):
+		list_splitter = lambda lst, sz: [lst[i:i+sz] for i in range(0, len(lst), sz)]
+		out_list = list_splitter(sp_list, SP_PER_LESSON)
+		return out_list
 
 
 	# Helper function for downloading audio files
