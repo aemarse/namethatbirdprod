@@ -31,9 +31,8 @@ class AnnotationSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Annotations
-		fields = ('id', 'user', 'sound', 'wave_onset', 'wave_offset', 
-			'spec_onset', 'spec_offset', 'species', 
-			'added_date')
+		fields = ('id', 'user', 'sound', 'wave_onset', 'wave_offset',
+			'species', 'added_date')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -77,8 +76,7 @@ class GroundTruthSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = GroundTruth
-		fields = ('id', 'user', 'sound', 'wave_onset', 'wave_offset', 
-			'spec_onset', 'spec_offset', 'species', 
+		fields = ('id', 'sound', 'onset_loc', 'species',
 			'added_date')
 
 

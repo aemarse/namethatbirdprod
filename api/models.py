@@ -50,8 +50,6 @@ class Annotations(models.Model):
 	user = models.ForeignKey('auth.User', related_name="annotations")
 	wave_onset = models.FloatField()
 	wave_offset = models.FloatField()
-	spec_onset = models.FloatField()
-	spec_offset= models.FloatField()
 	species = models.ForeignKey('Species', related_name="ann-species")
 	added_date = models.DateTimeField(auto_now_add=True)
 
@@ -61,10 +59,6 @@ class Annotations(models.Model):
 
 class GroundTruth(models.Model):
 	sound = models.ForeignKey('Sounds', related_name="truth")
-	user = models.ForeignKey('auth.User', related_name="truth")
-	wave_onset = models.FloatField()
-	wave_offset = models.FloatField()
-	spec_onset = models.FloatField()
-	spec_offset= models.FloatField()
+	onset_loc = models.FloatField()
 	species = models.ForeignKey('Species', related_name="truth-species")
 	added_date = models.DateTimeField(auto_now_add=True)

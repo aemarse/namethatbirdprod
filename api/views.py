@@ -230,22 +230,6 @@ class PlaylistList(generics.ListCreateAPIView):
 						s.waveform_path = '/' + str(s.xc_id) + '.dat'
 						s.spectrogram_path = '/' + str(s.xc_id) + '.spec'
 
-						# Download the audio file (temp)
-						temp_filename = self.download_file(curr_url, curr_id)
-
-						# print "Temp mp3 file downloaded"
-
-						# Calculate onsets/offsets
-						feat_obj = feat.FeaturesObject()
-						# json_filename = feat_obj.get_onsets(temp_filename)
-						onsets = feat_obj.get_onsets(temp_filename)
-						print onsets
-
-						# print "Onsets calculated"
-
-						# Remove the temp file
-						os.remove(temp_filename)
-
 						# Figure out if there's a species object that matches the species name
 						try:
 							sp = Species.objects.get(eng_name=curr_sp_name)
@@ -260,6 +244,24 @@ class PlaylistList(generics.ListCreateAPIView):
 						# Save the sound
 						s.save()
 						snd_pks.append(s.pk)
+
+						# Download the audio file (temp)
+						temp_filename = self.download_file(curr_url, curr_id)
+
+						# Calculate onsets/offsets
+						feat_obj = feat.FeaturesObject()
+						# json_filename = feat_obj.get_onsets(temp_filename)
+						onsets = feat_obj.get_onsets(temp_filename)
+
+						# Create a GroundTruth object for each onset
+						for onset in onsets:
+							gtruth = GroundTruth(sound=s,
+								onset_loc=onset,
+								species=s.species)
+							gtruth.save()
+
+						# Remove the temp file
+						os.remove(temp_filename)
 
 					# Add the id to the list
 					id_list.append(curr_id)
