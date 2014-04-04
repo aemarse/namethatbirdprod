@@ -11,14 +11,12 @@ from django.http import HttpResponse
 from libs import xeno_canto as xc
 from libs import create_lesson as cl
 from libs import extract_features as feat
-
+from django.conf import settings
 import os
-
 from urllib2 import urlopen
 
 
-#audio_dir = '/Users/aemarse/Documents/devel/NameThatBird/audio/'
-audio_dir = '/opt/ntb_v1/ntb_v1/media/audio/'
+audio_dir = settings.MEDIA_ROOT
 SP_PER_LESSON = 4
 
 
