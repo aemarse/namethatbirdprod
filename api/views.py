@@ -235,12 +235,14 @@ class PlaylistList(generics.ListCreateAPIView):
 							waveform_path = feat_obj.get_waveform(temp_filename)
 							# s.waveform_path = waveform_path
 
-							# Save the sound
-							s.save()
-							snd_pks.append(s.pk)
-
 							# Calculate onsets/offsets
 							onsets = feat_obj.get_onsets(temp_filename)
+
+							# Save the sound
+							fs = feat_obj.sampleRate
+							s.fs = fs
+							s.save()
+							snd_pks.append(s.pk)
 
 							# Create a GroundTruth object for each onset
 							for onset in onsets:

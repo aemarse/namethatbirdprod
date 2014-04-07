@@ -10,6 +10,7 @@ class Sounds(models.Model):
 	xc_id = models.IntegerField()
 	species = models.ForeignKey('Species', related_name="sp")
 	lessons = models.ManyToManyField('Lessons', related_name="sounds")
+	fs = models.IntegerField()
 	added_date = models.DateTimeField(auto_now_add=True)
 
 	def __unicode__(self):

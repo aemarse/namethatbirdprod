@@ -7,7 +7,7 @@ class SoundSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Sounds
-		fields = ('id', 'xc_id', 'species', 'added_date')
+		fields = ('id', 'xc_id', 'species', 'fs', 'added_date')
 
 
 class SpeciesSerializer(serializers.ModelSerializer):

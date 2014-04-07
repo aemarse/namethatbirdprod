@@ -16,7 +16,10 @@ class FeaturesObject():
 
 		# print in_filename
 		# Load the audio (in mono)
+		audio, sampleRate, numChan = AudioLoader(filename=in_filename)()
 		audio = MonoLoader(filename=in_filename)()
+
+		self.sampleRate = sampleRate
 
 		# 1) Compute onset detection functions
 		od = OnsetDetection(method='rms')
