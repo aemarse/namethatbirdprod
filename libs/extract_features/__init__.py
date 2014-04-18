@@ -1,6 +1,5 @@
 from essentia import Pool, array
 from essentia.standard import *
-# from pylab import *
 import subprocess
 
 
@@ -11,6 +10,7 @@ class FeaturesObject():
 		# Set some parameters
 		self.frame_size = 1024
 		self.hop_size = 512
+		self.samps_per_px = 256
 
 	def get_onsets(self, in_filename):
 
@@ -50,28 +50,7 @@ class FeaturesObject():
 	def get_waveform(self, in_filename):
 
 		out_filename = in_filename[0:len(in_filename)-3] + 'dat'
-		subprocess.call('audiowaveform -i ' + in_filename + ' -o ' + out_filename + ' -z 256 -b 8', shell=True)
+		subprocess.call('audiowaveform -i ' + in_filename + ' -o ' + out_filename + ' -z ' + str(self.samps_per_px)
+		 + ' -b 8', shell=True)
 
 		return out_filename
-
-		# subprocess.call('audiowaveform -i /opt/ntb_v1/ntb_v1/media/audio/160043.mp3 -o /opt/ntb_v1/ntb_v1/media/audio/160043.dat -z 256 -b 8', shell=True)
-
-		# 3) Save the onset locations to a .json file
-		# pool_onsets = Pool()
-		# pool_onsets.add('onsets.rms', onsets_rms)
-
-		# # By the way, onsets are saved in terms of "seconds"
-		# json_filename = in_filename[0:len(in_filename)-3] + 'json'
-		# output = YamlOutput(filename=json_filename, format='json')
-		# output(pool_onsets)
-
-		# return json_filename
-
-
-# THIS IS WHERE IT STARTS
-
-# Call C program for writing audio waveform data
-# call(["./hello"])
-
-# Get the onsets
-# get_onsets()

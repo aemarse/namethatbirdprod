@@ -22,6 +22,7 @@ class Sounds(models.Model):
 
 class Species(models.Model):
 	eng_name = models.CharField(max_length=30, null=False)
+	lessons = models.ManyToManyField('Lessons', related_name="species")
 
 	def __unicode__(self):
 		return u'%s' % self.eng_name

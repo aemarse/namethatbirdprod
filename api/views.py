@@ -37,8 +37,30 @@ class SoundList(generics.ListCreateAPIView):
 	"""
 	List all sounds, create a sound
 	"""
-	queryset = Sounds.objects.all()
+	# queryset = Sounds.objects.all()
 	serializer_class = SoundSerializer
+
+	def get_queryset(self):
+		"""
+		Optionally restricts the returned playlists
+		according to a given playlist_type, by filtering
+		against a "playlist_type" query parameter in 
+		the URL.
+		Multiple query params must be separated by: &
+		"""
+		
+		queryset = Sounds.objects.all()
+		
+		sound_id = self.request.QUERY_PARAMS.get('id', None)
+		xc_id = self.request.QUERY_PARAMS.get('xc_id', None)
+
+		if sound_id is not None:
+			queryset = queryset.filter(id=sound_id)
+
+		if xc_id is not None:
+			queryset = queryset.filter(xc_id=xc_id)
+
+		return queryset
 
 
 class SoundDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -171,6 +193,7 @@ class PlaylistList(generics.ListCreateAPIView):
 
 			# Initialize a list for saving the pks of sounds
 			snd_pks = []
+			sp_pks = []
 
 			# Instantiate a Lessons object
 			l = Lessons()
@@ -225,6 +248,10 @@ class PlaylistList(generics.ListCreateAPIView):
 							# Add the species to the current sound
 							s.species = sp
 
+							# Add the current sp pk to the list
+							if sp.pk not in sp_pks:
+								sp_pks.append(sp.pk)
+
 							# Download the audio file (temp)
 							temp_filename = self.download_file(curr_url, curr_id)
 
@@ -260,6 +287,8 @@ class PlaylistList(generics.ListCreateAPIView):
 						# Increment num_recs
 						num_recs += 1
 
+			sp_pks.sort()
+			l.species = sp_pks
 			l.sounds = snd_pks
 			l.save()
 
@@ -358,8 +387,26 @@ class GroundTruthList(generics.ListCreateAPIView):
 	"""
 	List all ground truths, create a ground truth
 	"""
-	queryset = GroundTruth.objects.all()
+	# queryset = GroundTruth.objects.all()
 	serializer_class = GroundTruthSerializer
+
+	def get_queryset(self):
+		"""
+		Optionally restricts the returned ground truths
+		according to a given sound, by filtering
+		against a "sound" query parameter in 
+		the URL.
+		Multiple query params must be separated by: &
+		"""
+
+		queryset = GroundTruth.objects.all()
+		
+		sound = self.request.QUERY_PARAMS.get('sound', None)
+
+		if sound is not None:
+			queryset = queryset.filter(sound=sound)
+
+		return queryset
 
 
 class GroundTruthDetail(generics.RetrieveUpdateDestroyAPIView):

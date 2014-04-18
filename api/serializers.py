@@ -58,10 +58,11 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
 class LessonSerializer(serializers.ModelSerializer):
 	sounds = serializers.PrimaryKeyRelatedField(many=True)
+	species = serializers.PrimaryKeyRelatedField(many=True)
 
 	class Meta:
 		model = Lessons
-		fields = ('id', 'playlist', 'sounds', 'added_date')
+		fields = ('id', 'playlist', 'sounds', 'species', 'added_date')
 
 
 class SpeciesSerializer(serializers.ModelSerializer):
