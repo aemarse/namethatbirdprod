@@ -36,7 +36,7 @@ class AnnotationSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 	annotations = serializers.PrimaryKeyRelatedField(many=True)
-	truth = serializers.PrimaryKeyRelatedField(many=True)
+	# truth = serializers.PrimaryKeyRelatedField(many=True)
 	# annotations = serializers.HyperlinkedRelatedField(many=True,
 	# 						read_only=True, 
 	# 						view_name='annotation-detail',
@@ -44,7 +44,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ('id', 'username', 'annotations', 'truth')
+		fields = ('id', 'username', 'annotations')
 
 
 class PlaylistSerializer(serializers.ModelSerializer):

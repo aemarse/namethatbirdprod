@@ -77,7 +77,7 @@ class AnnotationList(generics.ListCreateAPIView):
 	"""
 	queryset = Annotations.objects.all()
 	serializer_class = AnnotationSerializer
-	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+	# permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 	# def pre_save(self, obj):
 	# 	obj.owner = self.request.user
@@ -89,8 +89,8 @@ class AnnotationDetail(generics.RetrieveUpdateDestroyAPIView):
 	"""
 	queryset = Annotations.objects.all()
 	serializer_class = AnnotationSerializer
-	permission_classes = (permissions.IsAuthenticatedOrReadOnly, 
-							IsOwnerOrReadOnly,)
+	# permission_classes = (permissions.IsAuthenticatedOrReadOnly, 
+	# 						IsOwnerOrReadOnly,)
 
 	# def pre_save(self, obj):
 	# 	obj.owner = self.request.user
